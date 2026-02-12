@@ -1,0 +1,31 @@
+{
+  "name": "tenth-man-mcp",
+  "version": "0.1.0",
+  "description": "10th Man Protocol — Adversarial review MCP server for Claude Code. Spawns 3 contrarian agents to challenge proposed code changes before execution.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "bin": {
+    "tenth-man-mcp": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc && node -e \"const fs=require('fs'),p=require('path');fs.mkdirSync('dist/prompts',{recursive:true});fs.readdirSync('src/prompts').filter(f=>f.endsWith('.md')).forEach(f=>fs.copyFileSync(p.join('src/prompts',f),p.join('dist/prompts',f)))\"",
+    "start": "node dist/index.js",
+    "dev": "tsc --watch",
+    "prepare": "npm run build"
+  },
+  "keywords": [
+    "mcp", "claude-code", "code-review", "adversarial",
+    "ai-agents", "tenth-man", "codex", "gemini"
+  ],
+  "license": "MIT",
+  "engines": { "node": ">=18.0.0" },
+  "files": ["dist", "README.md", "LICENSE"],
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.26.0",
+    "zod": "^3.24.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.7.0"
+  }
+}
