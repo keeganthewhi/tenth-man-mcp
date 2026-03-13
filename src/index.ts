@@ -149,7 +149,7 @@ In AUTO mode: returns findings directly — incorporate them into your plan and 
         ? 'partial'
         : verdicts.length > 0
           ? 'completed'
-          : 'completed',
+          : 'partial',
       mode: resolvedMode,
       severity: args.severity as Severity,
       duration_ms: duration,
@@ -165,10 +165,7 @@ In AUTO mode: returns findings directly — incorporate them into your plan and 
       result.review_file = reviewFile;
 
       // Build response for host agent
-      const agentSummaries = buildAgentSummaries(verdicts, subagent_prompts);
-      const subagentInstructions = subagent_prompts.length > 0
-        ? buildSubagentInstructions(subagent_prompts)
-        : '';
+      const agentSummaries = buildAgentSummaries(verdicts);
 
       return {
         content: [
@@ -228,10 +225,6 @@ In AUTO mode: returns findings directly — incorporate them into your plan and 
     // Archive immediately in auto mode
     archiveToHistory(config.repo_root, auditId, result, input);
 
-    const subagentInstructions = subagent_prompts.length > 0
-      ? buildSubagentInstructions(subagent_prompts)
-      : '';
-
     return {
       content: [
         {
@@ -255,6 +248,7 @@ In AUTO mode: returns findings directly — incorporate them into your plan and 
                     verdict: v.verdict,
                     confidence: v.confidence,
                     engine: v.engine,
+                    model: v.model,
                     status: v.status,
                   },
                 ]),
@@ -416,7 +410,6 @@ server.tool(
 
 function buildAgentSummaries(
   verdicts: import('./types.js').AgentVerdict[],
-  _pending: import('./types.js').SubagentSpawnInstruction[],
 ): string {
   const parts: string[] = [];
 
@@ -431,17 +424,6 @@ function buildAgentSummaries(
   }
 
   return parts.join('\n');
-}
-
-function buildSubagentInstructions(
-  prompts: import('./types.js').SubagentSpawnInstruction[],
-): string {
-  return prompts
-    .map((p) => {
-      const label = ROLE_LABELS[p.role];
-      return `Spawn a ${label.label} subagent with model "${p.model}" and tools [${p.tools.join(', ')}]. This subagent must run in its own isolated context — do NOT pass other agents' findings to it.`;
-    })
-    .join('\n');
 }
 
 function buildStandardInstruction(

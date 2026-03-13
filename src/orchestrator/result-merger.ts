@@ -52,16 +52,9 @@ export function computeConsensus(verdicts: AgentVerdict[]): Consensus {
     verdict = 'proceed';
   }
 
-  // Weighted confidence
-  let totalWeight = 0;
-  let weightedConfidence = 0;
-  for (const v of completed) {
-    const weight = v.status === 'completed' ? 1 : 0.3;
-    totalWeight += weight;
-    weightedConfidence += v.confidence * weight;
-  }
-  const confidence = totalWeight > 0
-    ? Math.round((weightedConfidence / totalWeight) * 100) / 100
+  // Weighted confidence (all items in `completed` are guaranteed status === 'completed')
+  const confidence = completed.length > 0
+    ? Math.round((completed.reduce((sum, v) => sum + v.confidence, 0) / completed.length) * 100) / 100
     : 0.5;
 
   // Extract critical issues from all verdicts
